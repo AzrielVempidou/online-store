@@ -49,6 +49,7 @@ This is a RESTful API for an online store built with Go. The backend supports us
   "message": "User registered successfully"  
 }
   ```
+
 ## Login
 - URL: /login
 - Method: POST
@@ -66,6 +67,7 @@ This is a RESTful API for an online store built with Go. The backend supports us
   "token": "your.jwt.token"
 }
 ```
+
 ## Products
 - Get Products
 - URL: /products
@@ -96,6 +98,28 @@ This is a RESTful API for an online store built with Go. The backend supports us
   }
 ]
 ```
+
+## Get Products by Category
+- Get Products by Category
+- URL: /products/{category}
+- Method: GET
+- Query Parameters: category (optional)
+- Response:
+```json
+[
+  {
+    "ID": 1,
+    "CreatedAt": "2024-06-25T12:00:00Z",
+    "UpdatedAt": "2024-06-25T12:00:00Z",
+    "DeletedAt": null,
+    "name": "Product 1",
+    "category": "Category 1",
+    "price": 100.0,
+    "description": "Description for Product 1"
+  }
+]
+```
+
 ## Cart
 - Get Cart
 - URL: /cart
@@ -154,7 +178,7 @@ This is a RESTful API for an online store built with Go. The backend supports us
 ```
 
 ## Delete from Cart
-- URL: /cart
+- URL: /cart/{productId}
 - Method: DELETE
 - Headers:
   - Authorization: Bearer your.jwt.token
@@ -170,6 +194,7 @@ This is a RESTful API for an online store built with Go. The backend supports us
   "message": "Item deleted from cart"
 }
 ```
+
 ## Checkout
 
 - URL: /checkout
