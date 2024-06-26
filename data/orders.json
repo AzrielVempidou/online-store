@@ -1,0 +1,27 @@
+[
+  {
+    "id": "60d5ec49f9a95d77b5d4c3db",
+    "customerId": "60d5ec49f9a95d77b5d4c3d7",
+    "totalAmount": 300.0,
+    "status": "pending",
+    "createdAt": "2024-06-25T12:00:00Z",
+    "items": [
+      {
+        "id": "60d5ec49f9a95d77b5d4c3dc",
+        "orderId": "60d5ec49f9a95d77b5d4c3db",
+        "productId": "60d5ec49f9a95d77b5d4c3d8",
+        "quantity": 2,
+        "price": 100.0,
+        "createdAt": "2024-06-25T12:00:00Z"
+      },
+      {
+        "id": "60d5ec49f9a95d77b5d4c3dd",
+        "orderId": "60d5ec49f9a95d77b5d4c3db",
+        "productId": "60d5ec49f9a95d77b5d4c3d9",
+        "quantity": 1,
+        "price": 200.0,
+        "createdAt": "2024-06-25T12:00:00Z"
+      }
+    ]
+  }
+]

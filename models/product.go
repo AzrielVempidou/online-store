@@ -2,7 +2,6 @@ package models
 
 import (
     "context"
-    "online-store/utils"
     "time"
 
     "go.mongodb.org/mongo-driver/bson"
@@ -22,10 +21,7 @@ type Product struct {
 
 var productCollection *mongo.Collection
 
-func init() {
-    // Initialize MongoDB client and collection once
-    productCollection = utils.MongoClient.Database("store").Collection("products")
-}
+
 
 // GetProductByID retrieves a product by its ID
 func GetProductByID(id string) (*Product, error) {

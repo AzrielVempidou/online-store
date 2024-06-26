@@ -1,0 +1,20 @@
+[
+  {
+    "id": "60d5ec49f9a95d77b5d4c3d8",
+    "name": "Product 1",
+    "description": "Description for Product 1",
+    "category": "Category 1",
+    "price": 100.0,
+    "stock": 50,
+    "createdAt": "2024-06-25T12:00:00Z"
+  },
+  {
+    "id": "60d5ec49f9a95d77b5d4c3d9",
+    "name": "Product 2",
+    "description": "Description for Product 2",
+    "category": "Category 2",
+    "price": 200.0,
+    "stock": 30,
+    "createdAt": "2024-06-25T12:00:00Z"
+  }
+]
