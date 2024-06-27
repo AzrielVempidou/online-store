@@ -37,11 +37,11 @@ This is a RESTful API for an online store built with Go. The backend supports us
 - Method: POST
 - Request Body:
 ```json
-{
-  "username": "testuser",
-  "password": "password123",
-  "email": "testuser@example.com"
-}
+  {
+    "name": "testuser3",
+    "email": "testuser3@example.com",
+    "password": "testuser3@example.com"
+  }
 ```
 - Response:
 ```json

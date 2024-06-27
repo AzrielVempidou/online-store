@@ -14,10 +14,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
         return
     }
     if err := user.Create(); err != nil {
-        utils.RespondWithError(w, http.StatusInternalServerError, "Error creating user")
+        utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
         return
     }
-    utils.RespondWithJSON(w, http.StatusCreated, user)
+    utils.RespondWithMessage(w, http.StatusCreated, "User registered successfully")
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
