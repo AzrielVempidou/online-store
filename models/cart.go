@@ -24,8 +24,8 @@ type CartItem struct {
 var cartCollection *mongo.Collection
 
 // InitializeMongoDB initializes MongoDB collection reference
-func InitializeMongoDB(database *mongo.Database) {
-    cartCollection = database.Collection("carts")
+func InitializeCartCollection(database *mongo.Database) {
+    cartCollection = database.Collection("Carts")
 }
 
 // Create creates a new shopping cart.

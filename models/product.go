@@ -2,6 +2,7 @@ package models
 
 import (
     "context"
+    "errors"
     "time"
 
     "go.mongodb.org/mongo-driver/bson"
@@ -20,7 +21,9 @@ type Product struct {
 }
 
 var productCollection *mongo.Collection
-
+func InitializeProductCollection(database *mongo.Database) {
+    productCollection = database.Collection("Products")
+}
 
 
 // GetProductByID retrieves a product by its ID
@@ -45,7 +48,11 @@ func GetProductByID(id string) (*Product, error) {
 }
 
 func GetAllProducts() ([]Product, error) {
-    var products []Product
+    if productCollection == nil {
+        return nil, errors.New("MongoDB collection is not initialized")
+    }
+
+    // Lanjutkan dengan operasi MongoDB seperti biasa
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
@@ -55,15 +62,18 @@ func GetAllProducts() ([]Product, error) {
     }
     defer cursor.Close(ctx)
 
+    var products []Product
     for cursor.Next(ctx) {
         var product Product
-        if err = cursor.Decode(&product); err != nil {
+        if err := cursor.Decode(&product); err != nil {
             return nil, err
         }
         products = append(products, product)
     }
+
     return products, nil
 }
+
 
 func GetProductsByCategory(category string) ([]Product, error) {
     var products []Product

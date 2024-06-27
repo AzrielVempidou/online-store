@@ -14,11 +14,13 @@ import (
 func GetProducts(w http.ResponseWriter, r *http.Request) {
     products, err := models.GetAllProducts()
     if err != nil {
-        RespondWithError(w, http.StatusInternalServerError, "Error getting products")
+        log.Printf("Error retrieving products: %v", err)  // Log error detail
+        RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve products")
         return
     }
     RespondWithJSON(w, http.StatusOK, products)
 }
+
 
 func GetProductsByCategory(w http.ResponseWriter, r *http.Request) {
     vars := mux.Vars(r)
