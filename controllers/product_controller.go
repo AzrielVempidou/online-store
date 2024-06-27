@@ -15,7 +15,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
     products, err := models.GetAllProducts()
     if err != nil {
         log.Printf("Error retrieving products: %v", err)  // Log error detail
-        RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve products")
+        RespondWithError(w, http.StatusInternalServerError, err.Error())
         return
     }
     RespondWithJSON(w, http.StatusOK, products)

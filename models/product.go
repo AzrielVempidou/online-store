@@ -3,6 +3,7 @@ package models
 import (
     "context"
     "errors"
+    "online-store/utils"
     "time"
 
     "go.mongodb.org/mongo-driver/bson"
@@ -21,13 +22,17 @@ type Product struct {
 }
 
 var productCollection *mongo.Collection
-func InitializeProductCollection(database *mongo.Database) {
-    productCollection = database.Collection("Products")
-}
 
+// EnsureCollection initializes the MongoDB collection for products
+func EnsureCollection() {
+    if productCollection == nil {
+        productCollection = utils.MongoClient.Database("store").Collection("products")
+    }
+}
 
 // GetProductByID retrieves a product by its ID
 func GetProductByID(id string) (*Product, error) {
+    EnsureCollection()
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
@@ -41,18 +46,18 @@ func GetProductByID(id string) (*Product, error) {
     var product Product
     err = productCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&product)
     if err != nil {
+        if errors.Is(err, mongo.ErrNoDocuments) {
+            return nil, errors.New("product not found")
+        }
         return nil, err
     }
 
     return &product, nil
 }
 
+// GetAllProducts retrieves all products from the collection
 func GetAllProducts() ([]Product, error) {
-    if productCollection == nil {
-        return nil, errors.New("MongoDB collection is not initialized")
-    }
-
-    // Lanjutkan dengan operasi MongoDB seperti biasa
+    EnsureCollection()
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
@@ -74,9 +79,9 @@ func GetAllProducts() ([]Product, error) {
     return products, nil
 }
 
-
+// GetProductsByCategory retrieves products by category
 func GetProductsByCategory(category string) ([]Product, error) {
-    var products []Product
+    EnsureCollection()
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
@@ -86,6 +91,7 @@ func GetProductsByCategory(category string) ([]Product, error) {
     }
     defer cursor.Close(ctx)
 
+    var products []Product
     for cursor.Next(ctx) {
         var product Product
         if err = cursor.Decode(&product); err != nil {
