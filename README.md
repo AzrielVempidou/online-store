@@ -104,6 +104,11 @@ This is a RESTful API for an online store built with Go. The backend supports us
 - URL: /products/{category}
 - Method: GET
 - Query Parameters: category (optional)
+- Example Routes:
+```bash
+GET /products/Category 1
+```
+
 - Response:
 ```json
 [
