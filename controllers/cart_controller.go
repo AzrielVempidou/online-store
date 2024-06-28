@@ -1,109 +1,84 @@
 package controllers
 
 import (
-    "encoding/json"
-    "net/http"
-    "online-store/models"
-    "online-store/utils"
+	"encoding/json"
+	"net/http"
+	"online-store/models"
 
-    "github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
-func CreateCart(w http.ResponseWriter, r *http.Request) {
-    var cart models.CartItem
-    if err := json.NewDecoder(r.Body).Decode(&cart); err != nil {
-        utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-        return
-    }
-    if err := cart.Create(); err != nil {
-        utils.RespondWithError(w, http.StatusInternalServerError, "Error creating cart")
-        return
-    }
-    utils.RespondWithJSON(w, http.StatusCreated, cart)
+type CartController struct{}
+
+func NewCartController() *CartController {
+    return &CartController{}
 }
 
-func AddItemToCart(w http.ResponseWriter, r *http.Request) {
+// AddToCart adds an item to the cart.
+func (c *CartController) AddToCart(w http.ResponseWriter, r *http.Request) {
     vars := mux.Vars(r)
     cartID := vars["cartId"]
+    productID := vars["productId"]
 
-    var item models.CartItem
-    if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
-        utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+    var input struct {
+        Quantity int `json:"quantity"`
+    }
+
+    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+        respondWithError(w, http.StatusBadRequest, "Invalid request payload")
         return
     }
-    item.CartID = cartID
-    if err := item.AddToCart(); err != nil {
-        utils.RespondWithError(w, http.StatusInternalServerError, "Error adding item to cart")
+
+    cartItem := models.CartItem{
+        CartID:    cartID,
+        ProductID: productID,
+        Quantity:  input.Quantity,
+    }
+
+    if err := cartItem.AddToCart(); err != nil {
+        respondWithError(w, http.StatusInternalServerError, err.Error())
         return
     }
-    utils.RespondWithJSON(w, http.StatusCreated, item)
+
+    respondWithJSON(w, http.StatusOK, gin.H{"message": "Product added to cart"})
 }
 
-func GetCartItems(w http.ResponseWriter, r *http.Request) {
-    vars := mux.Vars(r)
-    cartID := vars["cartId"]
+// GetCartItems retrieves all items in the cart.
+func (c *CartController) GetCartItems(w http.ResponseWriter, r *http.Request) {
+    cartID := mux.Vars(r)["cartId"]
 
     items, err := models.GetCartItems(cartID)
     if err != nil {
-        utils.RespondWithError(w, http.StatusInternalServerError, "Error getting cart items")
+        respondWithError(w, http.StatusInternalServerError, err.Error())
         return
     }
-    utils.RespondWithJSON(w, http.StatusOK, items)
+
+    respondWithJSON(w, http.StatusOK, items)
 }
 
-func AddToCart(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	productID := vars["productId"]
-	cartID := "default_cart_id" // Ganti dengan cara Anda mendapatkan cartID (misalnya, dari sesi pengguna)
-
-	// Check if the product is available
-	_, err := models.GetProductByID(productID)
-	if err != nil {
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			return
-	}
-
-	// Decode JSON request payload to get the requested quantity
-	var req struct {
-			Quantity int `json:"quantity"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-			return
-	}
-
-	// Validate the requested quantity
-	if req.Quantity <= 0 {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid quantity")
-			return
-	}
-
-	// Create a new cart item to be added to the cart
-	cartItem := models.CartItem{
-			CartID:    cartID,
-			ProductID: productID,
-			Quantity:  req.Quantity,
-	}
-
-	// Add the item to the cart
-	if err := cartItem.AddToCart(); err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "Error adding item to cart")
-			return
-	}
-
-	utils.RespondWithJSON(w, http.StatusCreated, cartItem)
-}
-
-
-
-func DeleteFromCart(w http.ResponseWriter, r *http.Request) {
-    vars := mux.Vars(r)
-    cartID := vars["cartId"]
-    itemID := vars["itemId"]
+// DeleteFromCart deletes an item from the cart.
+func (c *CartController) DeleteFromCart(w http.ResponseWriter, r *http.Request) {
+    cartID := mux.Vars(r)["cartId"]
+    itemID := mux.Vars(r)["itemId"]
 
     if err := models.DeleteCartItem(cartID, itemID); err != nil {
-        utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting cart item")
+        respondWithError(w, http.StatusInternalServerError, err.Error())
         return
     }
-    utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+
+    respondWithJSON(w, http.StatusOK, gin.H{"message": "Item deleted from cart"})
+}
+
+// Utility function to respond with JSON data
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+    response, _ := json.Marshal(payload)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(code)
+    w.Write(response)
+}
+
+// Utility function to respond with error message
+func respondWithError(w http.ResponseWriter, code int, msg string) {
+    respondWithJSON(w, code, gin.H{"error": msg})
 }

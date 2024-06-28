@@ -1,5 +1,3 @@
-// models/cart_item.go
-
 package models
 
 import (
@@ -23,7 +21,7 @@ type CartItem struct {
 
 var cartCollection *mongo.Collection
 
-// InitializeMongoDB initializes MongoDB collection reference
+// InitializeCartCollection initializes MongoDB collection reference
 func InitializeCartCollection(database *mongo.Database) {
     cartCollection = database.Collection("Carts")
 }
