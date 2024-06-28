@@ -1,8 +1,10 @@
 package utils
 
 import (
-    "encoding/json"
-    "net/http"
+	"encoding/json"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RespondWithMessage(w http.ResponseWriter, code int, message string) {
@@ -19,4 +21,8 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(code)
     w.Write(response)
+}
+
+func RespondWithSuccess(ctx *gin.Context, code int, payload interface{}) {
+    ctx.JSON(code, payload)
 }

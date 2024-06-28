@@ -2,58 +2,46 @@ package models
 
 import (
     "context"
-    "online-store/utils"
+    "fmt"
     "time"
 
-    "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+    "go.mongodb.org/mongo-driver/mongo"
 )
 
 type Order struct {
     ID          primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
     CustomerID  string             `bson:"customerId" json:"customerId"`
+    OrderItems  []OrderItem        `bson:"orderItems" json:"orderItems"`
     TotalAmount float64            `bson:"totalAmount" json:"totalAmount"`
-    Status      string             `bson:"status" json:"status"`
     CreatedAt   time.Time          `bson:"createdAt" json:"createdAt"`
-    Items       []OrderItem        `bson:"items" json:"items"`
 }
 
 type OrderItem struct {
-    ID        primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-    OrderID   primitive.ObjectID `bson:"orderId,omitempty" json:"orderId,omitempty"`
-    ProductID primitive.ObjectID `bson:"productId,omitempty" json:"productId,omitempty"`
-    Quantity  int                `bson:"quantity,omitempty" json:"quantity,omitempty"`
-    Price     float64            `bson:"price,omitempty" json:"price,omitempty"`
-    CreatedAt time.Time          `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+    ProductID string  `bson:"productId" json:"productId"`
+    Quantity  int     `bson:"quantity" json:"quantity"`
+    Price     float64 `bson:"price" json:"price"`
 }
 
-func (o *Order) Create() error {
-    collection := utils.MongoClient.Database("store").Collection("orders")
+var orderCollection *mongo.Collection
+
+// InitializeMongoDB initializes MongoDB collection reference
+func InitializeOrderCollection(database *mongo.Database) {
+    orderCollection = database.Collection("Orders")
+}
+
+// CreateOrder creates a new order in the database.
+func (o *Order) CreateOrder() error {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
     o.CreatedAt = time.Now()
-    _, err := collection.InsertOne(ctx, o)
-    return err
-}
 
-func (oi *OrderItem) MarshalBSON() ([]byte, error) {
-    oi.CreatedAt = time.Now()
-    return bson.Marshal(oi)
-}
+    _, err := orderCollection.InsertOne(ctx, o)
+    if err != nil {
+        return fmt.Errorf("failed to create order: %v", err)
+    }
 
-func (oi *OrderItem) UnmarshalBSON(data []byte) error {
-    type Alias OrderItem
-    var temp struct {
-        Alias
-        CreatedAt *time.Time `bson:"createdAt"`
-    }
-    if err := bson.Unmarshal(data, &temp); err != nil {
-        return err
-    }
-    *oi = OrderItem(temp.Alias)
-    if temp.CreatedAt != nil {
-        oi.CreatedAt = *temp.CreatedAt
-    }
+    fmt.Printf("Created order %+v\n", o)
     return nil
 }
